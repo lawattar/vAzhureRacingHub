@@ -1,5 +1,5 @@
 // 3DOF by Andrey Zhuravlev
-// Mofified for timer-based-stepping using ISR (increases speed/performance)by Laith Wattar
+// Mofified for timer-based-stepping using ISR (increases speed/performance) by Laith Wattar
 // Motion Smoothing Buffer implented starting on line 402 as recommended by Andrey Zhuravlev
 // e-mail: v.azhure@gmail.com
 // original version from 2025-06-21
@@ -24,7 +24,7 @@
 
 // Uncomment this line to flash MASTER device
 // Comment this line to flash SLAVE devices
-//#define I2CMASTER
+#define I2CMASTER
 
 // Maximal number of linear actuators
 #define MAX_LINEAR_ACTUATORS 4
@@ -165,7 +165,7 @@ void setup() {
 
   attachInterrupt(ALARM_PIN, OnAlarm, RISING);
   Wire.begin();
-  Wire.setClock(400000);  // Enable Fast I2C (400 kHz) - CRITICAL for buffering!
+  // Wire.setClock(400000);  // Reverted due to connectivity issues: use default I2C clock
   delay(1000);
   int nFound = 0;
   // scanning slave devices
@@ -655,7 +655,7 @@ void setup() {
   initStepTimer();
   
   Wire.begin(SLAVE_ADDR);
-  Wire.setClock(400000);  // Enable Fast I2C (400 kHz) - CRITICAL for buffering!
+  // Wire.setClock(400000);  // Reverted due to connectivity issues: use default I2C clock
   Wire.onReceive(receiveEvent);
   Wire.onRequest(requestEvent);
 
