@@ -555,6 +555,10 @@ void receiveEvent(int size) {
   uint8_t cmd;
   uint32_t data;
   if (size >= 5 && Wire.readBytes(&cmd, 1) == 1 && Wire.readBytes((uint8_t*)&data, sizeof(uint32_t)) == sizeof(uint32_t)) {
+    // While in ALARM, only allow clear alarm or reassert alarm commands.
+    if (mode == MODE::ALARM && cmd != COMMAND::CMD_CLEAR_ALARM && cmd != COMMAND::SET_ALARM) {
+      return;
+    }
     switch (cmd) {
       case COMMAND::CMD_HOME:
         if (mode != MODE::HOMEING) {
@@ -605,6 +609,20 @@ void receiveEvent(int size) {
         }
         break;
       case COMMAND::CMD_CLEAR_ALARM:
+        {
+          LimitChanged = true;
+          // Reset buffer on enable
+          bufferWriteIdx = 0;
+          bufferReadIdx = 0;
+          bufferHasData = false;
+          smoothedTargetPos = currentPos;
+          
+          if (bHomed)
+            mode = MODE::READY;
+          else
+            mode = MODE::CONNECTED;
+        }
+        break;
       case COMMAND::CMD_ENABLE:
         {
           LimitChanged = true;
