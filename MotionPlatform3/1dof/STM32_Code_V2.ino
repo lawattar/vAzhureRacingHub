@@ -558,14 +558,30 @@ void receiveEvent(int size) {
     switch (cmd) {
       case COMMAND::CMD_HOME:
         if (mode != MODE::HOMEING) {
-          mode = MODE::HOMEING;
-          currentPos = 0;
-          targetPos = RANGE * 1.2;
-          bHomed = false;
-          // Clear buffer on home
+          // Immediate homing entry: stop any active stepping before mode switch.
+          stopStepping();
+          setStepFrequency(delayToFreq(HOMEING_PULSE_DELAY));
+
+          // Clear buffered/planned motion so old targets cannot resume.
           bufferWriteIdx = 0;
           bufferReadIdx = 0;
           bufferHasData = false;
+          accelStepCount = 0;
+          accelStartTime = 0;
+
+          // Force homing direction output now.
+          if (HOME_DIRECTION == HIGH) {
+            GPIOA->regs->BSRR = (1 << DIR_PIN_BIT);
+          } else {
+            GPIOA->regs->BSRR = (1 << (DIR_PIN_BIT + 16));
+          }
+          currentDir = HOME_DIRECTION;
+
+          currentPos = 0;
+          smoothedTargetPos = currentPos;
+          targetPos = RANGE * 1.2;
+          bHomed = false;
+          mode = MODE::HOMEING;
         }
         break;
       case COMMAND::CMD_PARK:
@@ -720,6 +736,7 @@ void loop() {
           }
           
           stopStepping();
+          smoothedTargetPos = currentPos;
           mode = MODE::READY;
           bHomed = true;
           break;
