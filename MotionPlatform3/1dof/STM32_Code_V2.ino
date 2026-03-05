@@ -150,10 +150,13 @@ bool arr_slaves[MAX_LINEAR_ACTUATORS];
 #define HAS_SLAVE(idx) arr_slaves[idx]
 
 volatile bool bAlarm = false;
+volatile bool estopLatched = false;
+uint32_t lastAlarmBroadcastMs = 0;
 
 // Alarm input event
 void OnAlarm() {
   bAlarm = true;
+  estopLatched = true;
 }
 
 void setup() {
@@ -164,6 +167,10 @@ void setup() {
   digitalWrite(LED_PIN, HIGH);
 
   attachInterrupt(ALARM_PIN, OnAlarm, RISING);
+  estopLatched = (digitalRead(ALARM_PIN) == HIGH);
+  if (estopLatched) {
+    bAlarm = true;
+  }
   Wire.begin();
   // Wire.setClock(400000);  // Reverted due to connectivity issues: use default I2C clock
   delay(1000);
@@ -252,10 +259,16 @@ bool TransmitCMD(uint8_t addr, uint8_t cmd, uint32_t data) {
 }
 
 void loop() {
-  if (bAlarm) {
+  bool estopActive = (digitalRead(ALARM_PIN) == HIGH);
+  if (estopActive) {
+    estopLatched = true;
+  }
+
+  if (bAlarm || (estopActive && (millis() - lastAlarmBroadcastMs) > 100)) {
     for (int addr = SLAVE_FIRST; addr <= SLAVE_LAST; addr++)
       TransmitCMD(addr, COMMAND::SET_ALARM, 1);
     bAlarm = false;
+    lastAlarmBroadcastMs = millis();
   }
 
   if (Serial.available())
@@ -267,16 +280,35 @@ void loop() {
       case COMMAND::CMD_HOME:
       case COMMAND::CMD_ENABLE:
       case COMMAND::CMD_DISABLE:
-      case COMMAND::CMD_CLEAR_ALARM:
         {
+          // While E-stop is latched, block all motion/state-changing commands.
+          if (estopLatched) {
+            break;
+          }
           for (int t = 0; t < LINEAR_ACTUATORS; t++) {
             if (pccmd.data[t] == 1)
               TransmitCMD(SLAVE_FIRST + t, pccmd.cmd, 0);
           }
         }
         break;
+      case COMMAND::CMD_CLEAR_ALARM:
+        {
+          // Require E-stop input release before allowing reset/clear.
+          if (estopActive) {
+            break;
+          }
+          for (int t = 0; t < LINEAR_ACTUATORS; t++) {
+            if (pccmd.data[t] == 1)
+              TransmitCMD(SLAVE_FIRST + t, pccmd.cmd, 0);
+          }
+          estopLatched = false;
+        }
+        break;
       case COMMAND::CMD_MOVE_SH:
         {
+          if (estopLatched) {
+            break;
+          }
           //memcpy(&pccmd_sh, &pccmd, RAW_DATA_LEN);
           for (int t = 0; t < LINEAR_ACTUATORS; t++) {
             uint16_t val = pccmd_sh.data[t];
@@ -292,6 +324,9 @@ void loop() {
       case COMMAND::CMD_SET_SLOW_SPEED:
       case COMMAND::CMD_SET_ACCEL:
         {
+          if (estopLatched) {
+            break;
+          }
           for (int t = 0; t < LINEAR_ACTUATORS; t++)
             TransmitCMD(SLAVE_FIRST + t, pccmd.cmd, pccmd.data[t]);
         }
@@ -548,6 +583,8 @@ inline void Step(uint8_t dir, int delay) {
 
 // Limit switch event
 void OnLimitSwitch() {
+  // Refresh immediately so timerISR() sees the latest switch state.
+  limitSwitchState = digitalRead(limiterPinNO);
   LimitChanged = true;
 }
 
@@ -561,6 +598,10 @@ void receiveEvent(int size) {
     }
     switch (cmd) {
       case COMMAND::CMD_HOME:
+        // Ignore repeated HOME when already homed and ready.
+        if (mode == MODE::READY && bHomed) {
+          break;
+        }
         if (mode != MODE::HOMEING) {
           // Immediate homing entry: stop any active stepping before mode switch.
           stopStepping();
@@ -728,11 +769,29 @@ void loop() {
           // Wait based on direction
           if (HOME_DIRECTION == HIGH) {
             while (currentPos > targetPos) {
+              if (mode == MODE::ALARM || !steppingEnabled) {
+                break;
+              }
               delay(1);
+            }
+            if (mode == MODE::ALARM || currentPos > targetPos) {
+              mode = MODE::ALARM;
+              bHomed = false;
+              stopStepping();
+              break;
             }
           } else {
             while (currentPos < targetPos) {
+              if (mode == MODE::ALARM || !steppingEnabled) {
+                break;
+              }
               delay(1);
+            }
+            if (mode == MODE::ALARM || currentPos < targetPos) {
+              mode = MODE::ALARM;
+              bHomed = false;
+              stopStepping();
+              break;
             }
           }
           
@@ -750,11 +809,23 @@ void loop() {
           startStepping(centerDir);
           
           while (targetPos != currentPos) {
+            if (mode == MODE::ALARM || !steppingEnabled) {
+              break;
+            }
             delay(1);
+          }
+          if (mode == MODE::ALARM || targetPos != currentPos) {
+            mode = MODE::ALARM;
+            bHomed = false;
+            stopStepping();
+            break;
           }
           
           stopStepping();
           smoothedTargetPos = currentPos;
+          bufferWriteIdx = 0;
+          bufferReadIdx = 0;
+          bufferHasData = false;
           mode = MODE::READY;
           bHomed = true;
           break;
@@ -790,10 +861,20 @@ void loop() {
         startStepping(dir);
         
         while (targetPos != currentPos) {
+          if (mode == MODE::ALARM || !steppingEnabled) {
+            break;
+          }
           delay(1);
+        }
+        if (mode == MODE::ALARM || targetPos != currentPos) {
+          mode = MODE::ALARM;
+          bHomed = false;
+          stopStepping();
+          break;
         }
         
         stopStepping();
+        smoothedTargetPos = currentPos;
         mode = MODE::READY;
       }
       break;
