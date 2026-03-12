@@ -464,13 +464,125 @@ namespace MotionPlatform3
             string sHome = FormatSimHubCommand(_plugin.GenerateCommand(COMMAND.CMD_HOME, 1, 1, 1, 1));
             string sState = FormatSimHubCommand(_plugin.GenerateCommand(COMMAND.CMD_GET_STATE, 1, 1, 1, 1));
 
+            motionsettings.Output.Settings.GenericProtocolDefinition.SettingsBuilder.Settings = new SimHub.ProtocolSetting[]
+            {
+                new SimHub.ProtocolSetting()
+                {
+                    TypeName = "GroupEntry",
+                    Label = "PID Mode Controls",
+                    Id = "31266265-e4a8-44c7-a44d-646b9560fcdc",
+                    Name = null,
+                    Settings = new SimHub.ProtocolSetting[]
+                    {
+                        new SimHub.ProtocolSetting()
+                        {
+                            TypeName = "BoolEntry",
+                            Label = "Enable STM32 PID mode",
+                            PropertyName = "pid_enable",
+                            CurrentValue = false,
+                            Id = "c0a818c4-c579-4576-997d-3e2b5f0887a0",
+                            Name = null
+                        },
+                        new SimHub.ProtocolSetting()
+                        {
+                            TypeName = "BoolEntry",
+                            Label = "Synchronized trajectory execution",
+                            PropertyName = "experimental_sync_exec",
+                            CurrentValue = false,
+                            Id = "18c2f2af-302f-4e1d-ad0d-1c6f52dd4541",
+                            Name = null
+                        },
+                        new SimHub.ProtocolSetting()
+                        {
+                            TypeName = "SliderEntry",
+                            Label = "PID blend (%)\nScales STM32 PID output strength (0 = off, 100 = full).",
+                            PropertyName = "pid_blend",
+                            CurrentValue = 35,
+                            Minimum = 0,
+                            Maximum = 100,
+                            Id = "4b292a99-f6c0-4bfc-80e1-2828af748d86",
+                            Name = null
+                        }
+                    }
+                },
+                new SimHub.ProtocolSetting()
+                {
+                    TypeName = "GroupEntry",
+                    Label = "PID Tuning Parameters",
+                    Id = "f4ed35d0-c372-46da-a970-593fe8de3b5a",
+                    Name = null,
+                    Settings = new SimHub.ProtocolSetting[]
+                    {
+                        new SimHub.ProtocolSetting()
+                        {
+                            TypeName = "SliderEntry",
+                            Label = "Kp - Proportional gain (response strength)\nHigher = faster, more aggressive response.",
+                            PropertyName = "pid_kp",
+                            CurrentValue = 8,
+                            Minimum = 0,
+                            Maximum = 30,
+                            Id = "1611dd26-c478-4ecf-8fae-b5e4166a81f2",
+                            Name = null
+                        },
+                        new SimHub.ProtocolSetting()
+                        {
+                            TypeName = "SliderEntry",
+                            Label = "Ki - Integral gain (steady-state correction)\nWARNING: Keep at 0.\nServo controller likely has internal integral.\nNon-zero value may cause desync between actuators.\nChange only if you understand cascade control.\nAccept desync risk.",
+                            PropertyName = "pid_ki",
+                            CurrentValue = 0,
+                            Minimum = 0,
+                            Maximum = 10,
+                            Id = "e263fd79-a803-4786-a473-8e969e7b3548",
+                            Name = null
+                        },
+                        new SimHub.ProtocolSetting()
+                        {
+                            TypeName = "SliderEntry",
+                            Label = "Kd - Derivative gain (scaled x100, 2 = 0.02)\nHigher = more damping, smoother deceleration.",
+                            PropertyName = "pid_kd",
+                            CurrentValue = 2,
+                            Minimum = 0,
+                            Maximum = 100,
+                            Id = "46e81266-97d8-4ea4-8615-b21945af1f2b",
+                            Name = null
+                        },
+                        new SimHub.ProtocolSetting()
+                        {
+                            TypeName = "SliderEntry",
+                            Label = "Ks - Derivative smoothing ratio (%)\nHigher = smoother derivative filtering (less noise, more lag).",
+                            PropertyName = "pid_ks",
+                            CurrentValue = 70,
+                            Minimum = 0,
+                            Maximum = 100,
+                            Id = "39df4aa0-f9ad-4994-bae4-2fce8b127039",
+                            Name = null
+                        }
+                    }
+                }
+            };
+
             motionsettings.Output.Settings.GenericProtocolDefinition.StartCommands = new SimHub.StartCommand[]
             {
                 new SimHub.StartCommand() { Command = sAcc },
                 new SimHub.StartCommand() { Command = sSpeedLow },
                 new SimHub.StartCommand() { Command = sSpeed },
                 new SimHub.StartCommand() { Command = sHome, CommandDelay = 3000 },
-                new SimHub.StartCommand() { Command = sState }
+                new SimHub.StartCommand() { Command = sState },
+                new SimHub.StartCommand() { Command = "PIDEN=<Setting,pid_enable,0><13><10>", CommandDelay = 50 },
+                new SimHub.StartCommand() { Command = "PIDBLEND=<Setting,pid_blend,0><13><10>", CommandDelay = 50 },
+                new SimHub.StartCommand() { Command = "SYNCEXEC=<Setting,experimental_sync_exec,0><13><10>", CommandDelay = 50 },
+                new SimHub.StartCommand() { Command = "KP=<Setting,pid_kp,0.00><13><10>", CommandDelay = 50 },
+                new SimHub.StartCommand() { Command = "KI=<Setting,pid_ki,0.00><13><10>", CommandDelay = 50 },
+                new SimHub.StartCommand() { Command = "KD=<Setting,pid_kd,0><13><10>", CommandDelay = 50 },
+                new SimHub.StartCommand() { Command = "KS=<Setting,pid_ks,0><13><10>", CommandDelay = 50 }
+            };
+
+            var baseUpdateCommand = motionsettings.Output.Settings.GenericProtocolDefinition.UpdateCommands?.FirstOrDefault() ?? new SimHub.UpdateCommand();
+            motionsettings.Output.Settings.GenericProtocolDefinition.UpdateCommands = new SimHub.UpdateCommand[]
+            {
+                new SimHub.UpdateCommand() { Command = baseUpdateCommand.Command, CommandDelay = baseUpdateCommand.CommandDelay },
+                new SimHub.UpdateCommand() { Command = "PIDCFG=<Setting,pid_enable,0>,<Setting,pid_blend,0><13><10>", CommandDelay = 0 },
+                new SimHub.UpdateCommand() { Command = "SYNCEXEC=<Setting,experimental_sync_exec,0><13><10>", CommandDelay = 0 }
             };
 
             using (SaveFileDialog saveFileDialog = new SaveFileDialog()
@@ -529,8 +641,21 @@ namespace MotionPlatform3
 
         public class SettingsBuilder
         {
-            public Settings[] Settings { get; set; } = { };
+            public ProtocolSetting[] Settings { get; set; } = { };
             public bool IsEditMode { get; set; } = false;
+        }
+
+        public class ProtocolSetting
+        {
+            public int? Maximum { get; set; } = null;
+            public int? Minimum { get; set; } = null;
+            public string PropertyName { get; set; } = null;
+            public object CurrentValue { get; set; } = null;
+            public string Name { get; set; } = null;
+            public string TypeName { get; set; } = null;
+            public string Label { get; set; } = null;
+            public string Id { get; set; } = null;
+            public ProtocolSetting[] Settings { get; set; } = null;
         }
 
         public class GenericProtocolDefinition
