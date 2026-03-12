@@ -170,6 +170,11 @@ const int RAW_DATA_LEN = sizeof(PCCMD);
 #define ALARM_PIN PA4
 #define SIGNAL_PIN PA5
 
+void QueuePidTextCommand(COMMAND cmd, uint32_t data);
+void QueueSynchronizedTargets(const int32_t* targets);
+void DispatchSynchronizedTargetsIfDue(bool force);
+bool TransmitCMD(uint8_t addr, uint8_t cmd, uint32_t data);
+
 // Device states
 STATE st[MAX_LINEAR_ACTUATORS];
 bool arr_slaves[MAX_LINEAR_ACTUATORS];
@@ -264,7 +269,6 @@ const uint16_t syncTrajectoryPeriodMs = 10;
 int32_t syncTargets[MAX_LINEAR_ACTUATORS] = { 0 };
 bool syncTargetsPending = false;
 uint32_t syncLastDispatchMs = 0;
-bool TransmitCMD(uint8_t addr, uint8_t cmd, uint32_t data);
 
 bool EqualsIgnoreCase(const char* a, const char* b) {
   while (*a && *b) {
