@@ -346,7 +346,7 @@ void ParseTextCommandLine() {
       v = (int32_t)(value * 100.0f + 0.5f);
     } else {
       int32_t scaled = atoi(rawValue);
-      v = (int32_t)clamp(scaled, 0, 100);
+      v = clamp<int32_t>(scaled, 0, 100);
     }
     if (v != lastKd100) {
       lastKd100 = v;
