@@ -77,7 +77,7 @@
                                                                                                                                         "Maximum":  100,
                                                                                                                                         "Minimum":  0,
                                                                                                                                         "PropertyName":  "pid_blend",
-                                                                                                                                        "CurrentValue":  100,
+                                                                                                                                        "CurrentValue":  35,
                                                                                                                                         "Name":  null,
                                                                                                                                         "TypeName":  "SliderEntry",
                                                                                                                                         "Label":  "PID blend (%)",

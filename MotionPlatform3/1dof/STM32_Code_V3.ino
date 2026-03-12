@@ -707,7 +707,7 @@ struct PIDController {
 
 volatile int32_t maxAccelSteps = (int32_t)(25000.0f * STEPS_PER_REVOLUTIONS / MM_PER_REV);
 volatile bool pidControlEnabled = false;
-float pidBlend = 1.0f;  // 0..1 scales PID output intensity
+float pidBlend = 0.35f;  // 0..1 scales PID output intensity
 float limitedFrequencyHz = 0.0f;
 uint32_t frequencyLimiterLastMs = 0;
 
