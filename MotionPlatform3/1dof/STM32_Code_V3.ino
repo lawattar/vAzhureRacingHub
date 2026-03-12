@@ -12,10 +12,15 @@
 // stm32duino version
 
 //!!!!!!!!!!!!!!!!!!!!!!!!!!!! WARNING !!!!!!!!!!!!!!!!!!!!!!!!!!!!
-// NOTE: MAKE SURE TO EDIT LINES 552-565 IF YOU CHANGE THE BALLSCREW LENGTH! Also please double check pin assignments depending on your board.
+// NOTE: MAKE SURE TO EDIT LINES 633-652 IF YOU CHANGE THE BALLSCREW LENGTH! 
+// Also please double check:
+// -LED_PIN
+// -MM_PER_REV - distance in mm per revolution
+// -MAX_REVOLUTIONS - total travel distance devided by MM_PER_REV
+// -STEPS_PER_REVOLUTIONS - Steps per revolution, decreased from 2000 to 1000 to accomadate slower STM32s (verify ratio on your specific servo controller)
 //!!!!!!!!!!!!!!!!!!!!!!!!!!!! WARNING !!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-// NOTE: select fake STM32F103C8
+// NOTE: select fake STM32F103C8 or Generik STM32F103C series, CPU Speed 74Mhz, upload method STLink, Optimize Fast (-O1)
 // https://www.stm32duino.com/
 
 //#define INVERTED_DIR
@@ -622,23 +627,29 @@ const uint8_t limiterPinNC = PA7;
 
 #define ANALOG_INPUT_MAX 4095
 
-volatile uint32_t accel = 25000;                               // Acceleration in mm/s^2 (25000 = 2.5g, 12000 would be gentler for 60Hz buffering --> adjust via desktop app)
+volatile uint32_t accel = 25000;                               // Acceleration limit in mm/s^2 (ie. 25000 = 2.5g, 12000 would be gentler --> adjust via desktop app)
 #define STEPS_CONTROL_DIST STEPS_PER_REVOLUTIONS / 4  // Distance in steps
 
+//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+//ADJUST VALUES BELOW BASED ON YOUR BALLSCREW SPECIFICATIONS
+
 #ifdef SFU1610
+// If you have SFU1610 ballscrew, adjust below:
 const float MM_PER_REV = 10.0f;                                // distance in mm per revolution
-const float MAX_REVOLUTIONS = 14.0;                            // maximum revolutions for ballscrew (adjust depending on custom length, 14 = 140mm)
-const int32_t STEPS_PER_REVOLUTIONS = 1000;                    // Steps per revolution, decreased from 2000 to 1000 to accomadate slower STM32s
-const int32_t SAFE_DIST_IN_STEPS = STEPS_PER_REVOLUTIONS / 4;  // Safe traveling distance in steps
-#define MAX_SPEED_MM_SEC 400  // maximum speed mm/sec
+const float MAX_REVOLUTIONS = 14.0;                            // maximum revolutions for ballscrew (adjust depending on custom length, ie. 14 = 140mm)
+const int32_t STEPS_PER_REVOLUTIONS = 1000;                    // Steps per revolution, decreased from 2000 to 1000 to accomadate slower STM32s --> verify servo drive ratio is correct as well
+const int32_t SAFE_DIST_IN_STEPS = STEPS_PER_REVOLUTIONS / 4;  // Safe traveling distance in steps (do not adjust)
+#define MAX_SPEED_MM_SEC 400  // maximum speed mm/sec (keep at 400 and recommended to instead adjust via desktop app)
 #else
-//1605 ballscrew:
+// If you have SFU1605 ballscrew, adjust below:
 const float MM_PER_REV = 5.0f;                                 // distance in mm per revolution
-const float MAX_REVOLUTIONS = 17.5;                            // maximum revolutions
-const int32_t STEPS_PER_REVOLUTIONS = 1000;                    // Steps per revolution
-const int32_t SAFE_DIST_IN_STEPS = STEPS_PER_REVOLUTIONS / 2;  // Safe traveling distance in steps
+const float MAX_REVOLUTIONS = 17.5;                            // maximum revolutions for ballscrew (adjust depending on custom length, ie. 14 = 140mm)
+const int32_t STEPS_PER_REVOLUTIONS = 1000;                    // Steps per revolution --> verify servo drive ratio is correct as well
+const int32_t SAFE_DIST_IN_STEPS = STEPS_PER_REVOLUTIONS / 2;  // Safe traveling distance in steps (do not adjust)
 #define MAX_SPEED_MM_SEC 120  // maximum speed mm/sec (can adjust only up to 200 for 1605 ballscrews due to physical limitations)
 #endif
+//ADJUST VALUES ABOVE BASED ON YOUR PLATFORM SPECIFICATIONS
+//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 const int32_t RANGE = (int32_t)(MAX_REVOLUTIONS * STEPS_PER_REVOLUTIONS);  // Maximum traveling distance, steps
 const int32_t MIN_POS = SAFE_DIST_IN_STEPS;                                // minimal controlled position, steps
