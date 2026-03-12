@@ -171,6 +171,7 @@ const int RAW_DATA_LEN = sizeof(PCCMD);
 #define SIGNAL_PIN PA5
 
 void QueuePidTextCommand(COMMAND cmd, uint32_t data);
+void UpdateMasterPidMirror(COMMAND cmd, uint32_t data);
 void QueueSynchronizedTargets(const int32_t* targets);
 void DispatchSynchronizedTargetsIfDue(bool force);
 bool TransmitCMD(uint8_t addr, uint8_t cmd, uint32_t data);
@@ -269,6 +270,17 @@ const uint16_t syncTrajectoryPeriodMs = 10;
 int32_t syncTargets[MAX_LINEAR_ACTUATORS] = { 0 };
 bool syncTargetsPending = false;
 uint32_t syncLastDispatchMs = 0;
+// Diagnostics: set false after validation if SimHub parsing is affected.
+bool pidDiagEnabled = true;
+const uint32_t PID_DIAG_INTERVAL_MS = 5000;
+uint32_t pidDiagLastMs = 0;
+float masterPidKp = 8.0f;
+float masterPidKi = 0.0f;
+float masterPidKd = 0.02f;
+float masterPidKs = 0.70f;
+bool masterPidEnable = false;
+float masterPidBlend = 0.35f;
+bool masterSyncExec = false;
 
 bool EqualsIgnoreCase(const char* a, const char* b) {
   while (*a && *b) {
@@ -285,6 +297,57 @@ void QueuePidTextCommand(COMMAND cmd, uint32_t data) {
   textPendingCmd = cmd;
   textPendingData = data;
   textCmdPending = true;
+}
+
+void UpdateMasterPidMirror(COMMAND cmd, uint32_t data) {
+  switch (cmd) {
+    case COMMAND::CMD_SET_PID_KP:
+      masterPidKp = clamp((float)data / 10.0f, 0.0f, 200.0f);
+      break;
+    case COMMAND::CMD_SET_PID_KI:
+      masterPidKi = clamp((float)data / 10.0f, 0.0f, 50.0f);
+      break;
+    case COMMAND::CMD_SET_PID_KD:
+      masterPidKd = clamp((float)data / 100.0f, 0.0f, 50.0f);
+      break;
+    case COMMAND::CMD_SET_PID_KS:
+      masterPidKs = clamp((float)data / 100.0f, 0.0f, 1.0f);
+      break;
+    case COMMAND::CMD_SET_PID_ENABLE:
+      masterPidEnable = (data != 0);
+      break;
+    case COMMAND::CMD_SET_PID_BLEND:
+      masterPidBlend = clamp((float)data / 100.0f, 0.0f, 1.0f);
+      break;
+    default:
+      break;
+  }
+}
+
+void PrintPidDiagnosticsIfDue() {
+  if (!pidDiagEnabled) {
+    return;
+  }
+  uint32_t now = millis();
+  if ((now - pidDiagLastMs) < PID_DIAG_INTERVAL_MS) {
+    return;
+  }
+  pidDiagLastMs = now;
+
+  Serial.print("PID EN=");
+  Serial.print(masterPidEnable ? 1 : 0);
+  Serial.print(" BLEND=");
+  Serial.print(masterPidBlend, 2);
+  Serial.print(" KP=");
+  Serial.print(masterPidKp, 2);
+  Serial.print(" KI=");
+  Serial.print(masterPidKi, 2);
+  Serial.print(" KD=");
+  Serial.print(masterPidKd, 3);
+  Serial.print(" KS=");
+  Serial.print(masterPidKs, 2);
+  Serial.print(" SYNC=");
+  Serial.println(masterSyncExec ? 1 : 0);
 }
 
 void QueueSynchronizedTargets(const int32_t* targets) {
@@ -413,6 +476,7 @@ void ParseTextCommandLine() {
     if (v != lastSyncExec) {
       lastSyncExec = v;
       syncTrajectoryEnabled = enabled;
+      masterSyncExec = enabled;
       syncTargetsPending = false;
       syncLastDispatchMs = 0;
     }
@@ -493,11 +557,14 @@ void loop() {
     DispatchSynchronizedTargetsIfDue(false);
   }
 
+  PrintPidDiagnosticsIfDue();
+
   if (textCmdPending) {
     if (!estopLatched) {
       for (int t = 0; t < LINEAR_ACTUATORS; t++) {
         TransmitCMD(SLAVE_FIRST + t, textPendingCmd, textPendingData);
       }
+      UpdateMasterPidMirror(textPendingCmd, textPendingData);
       textCmdPending = false;
     }
   }
@@ -588,6 +655,7 @@ void loop() {
           if (estopLatched) {
             break;
           }
+          UpdateMasterPidMirror(pccmd.cmd, (uint32_t)pccmd.data[0]);
           // PID tuning values are applied globally to all actuators.
           for (int t = 0; t < LINEAR_ACTUATORS; t++) {
             TransmitCMD(SLAVE_FIRST + t, pccmd.cmd, pccmd.data[0]);
