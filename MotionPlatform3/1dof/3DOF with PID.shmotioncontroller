@@ -50,44 +50,52 @@
                                                                                                                    "Id":  "31266265-e4a8-44c7-a44d-646b9560fcdc"
                                                                                                                },
                                                                                                                {
-                                                                                                                   "Maximum":  30,
-                                                                                                                   "Minimum":  0,
-                                                                                                                   "PropertyName":  "pid_kp",
-                                                                                                                   "CurrentValue":  8,
+                                                                                                                   "Settings":  [
+                                                                                                                                    {
+                                                                                                                                        "Maximum":  30,
+                                                                                                                                        "Minimum":  0,
+                                                                                                                                        "PropertyName":  "pid_kp",
+                                                                                                                                        "CurrentValue":  8,
+                                                                                                                                        "Name":  null,
+                                                                                                                                        "TypeName":  "SliderEntry",
+                                                                                                                                        "Label":  "Kp - Proportional gain (response strength)\nHigher = faster, more aggressive response.",
+                                                                                                                                        "Id":  "1611dd26-c478-4ecf-8fae-b5e4166a81f2"
+                                                                                                                                    },
+                                                                                                                                    {
+                                                                                                                                        "Maximum":  10,
+                                                                                                                                        "Minimum":  0,
+                                                                                                                                        "PropertyName":  "pid_ki",
+                                                                                                                                        "CurrentValue":  0,
+                                                                                                                                        "Name":  null,
+                                                                                                                                        "TypeName":  "SliderEntry",
+                                                                                                                                        "Label":  "Ki - Integral gain (steady-state correction)\nWARNING: Keep at 0. Servo controller likely has internal integral. Non-zero value may cause desync between actuators. Change only if you understand cascade control and accept desync risk.",
+                                                                                                                                        "Id":  "e263fd79-a803-4786-a473-8e969e7b3548"
+                                                                                                                                    },
+                                                                                                                                    {
+                                                                                                                                        "Maximum":  100,
+                                                                                                                                        "Minimum":  0,
+                                                                                                                                        "PropertyName":  "pid_kd",
+                                                                                                                                        "CurrentValue":  2,
+                                                                                                                                        "Name":  null,
+                                                                                                                                        "TypeName":  "SliderEntry",
+                                                                                                                                        "Label":  "Kd - Derivative gain (scaled x100, 2 = 0.02)\nHigher = more damping, smoother deceleration.",
+                                                                                                                                        "Id":  "46e81266-97d8-4ea4-8615-b21945af1f2b"
+                                                                                                                                    },
+                                                                                                                                    {
+                                                                                                                                        "Maximum":  100,
+                                                                                                                                        "Minimum":  0,
+                                                                                                                                        "PropertyName":  "pid_ks",
+                                                                                                                                        "CurrentValue":  70,
+                                                                                                                                        "Name":  null,
+                                                                                                                                        "TypeName":  "SliderEntry",
+                                                                                                                                        "Label":  "Ks - Derivative smoothing ratio (%)\nHigher = smoother derivative filtering (less noise, more lag).",
+                                                                                                                                        "Id":  "39df4aa0-f9ad-4994-bae4-2fce8b127039"
+                                                                                                                                    }
+                                                                                                                                ],
                                                                                                                    "Name":  null,
-                                                                                                                   "TypeName":  "SliderEntry",
-                                                                                                                   "Label":  "Kp - Proportional gain (response strength)\nHigher = faster, more aggressive response.",
-                                                                                                                   "Id":  "1611dd26-c478-4ecf-8fae-b5e4166a81f2"
-                                                                                                               },
-                                                                                                               {
-                                                                                                                   "Maximum":  10,
-                                                                                                                   "Minimum":  0,
-                                                                                                                   "PropertyName":  "pid_ki",
-                                                                                                                   "CurrentValue":  0,
-                                                                                                                   "Name":  null,
-                                                                                                                   "TypeName":  "SliderEntry",
-                                                                                                                   "Label":  "Ki - Integral gain (steady-state correction)\nWARNING: Keep at 0. Servo controller likely has internal integral. Non-zero may cause desync between actuators. Change only if you understand cascade control and accept desync risk.",
-                                                                                                                   "Id":  "e263fd79-a803-4786-a473-8e969e7b3548"
-                                                                                                               },
-                                                                                                               {
-                                                                                                                   "Maximum":  100,
-                                                                                                                   "Minimum":  0,
-                                                                                                                   "PropertyName":  "pid_kd",
-                                                                                                                   "CurrentValue":  2,
-                                                                                                                   "Name":  null,
-                                                                                                                   "TypeName":  "SliderEntry",
-                                                                                                                   "Label":  "Kd - Derivative gain (scaled x100, 2 = 0.02)\nHigher = more damping, smoother deceleration.",
-                                                                                                                   "Id":  "46e81266-97d8-4ea4-8615-b21945af1f2b"
-                                                                                                               },
-                                                                                                               {
-                                                                                                                   "Maximum":  100,
-                                                                                                                   "Minimum":  0,
-                                                                                                                   "PropertyName":  "pid_ks",
-                                                                                                                   "CurrentValue":  70,
-                                                                                                                   "Name":  null,
-                                                                                                                   "TypeName":  "SliderEntry",
-                                                                                                                   "Label":  "Ks - Derivative smoothing ratio (%)\nHigher = smoother derivative filtering (less noise, more lag).",
-                                                                                                                   "Id":  "39df4aa0-f9ad-4994-bae4-2fce8b127039"
+                                                                                                                   "TypeName":  "GroupEntry",
+                                                                                                                   "Label":  "PID Tuning Parameters",
+                                                                                                                   "Id":  "f4ed35d0-c372-46da-a970-593fe8de3b5a"
                                                                                                                }
                                                                                                            ],
                                                                                               "IsEditMode":  false
