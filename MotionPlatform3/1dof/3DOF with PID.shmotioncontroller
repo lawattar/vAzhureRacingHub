@@ -1,0 +1,229 @@
+{
+    "Output":  {
+                   "Comments":  null,
+                   "CustomName":  "vAzhureRacing 3DOF",
+                   "Settings":  {
+                                    "RtsEnable":  true,
+                                    "DtrEnable":  true,
+                                    "LockSettings":  false,
+                                    "SerialPort":  "COM8",
+                                    "DataBits":  8,
+                                    "SerialStopBits":  1,
+                                    "SerialParity":  0,
+                                    "BaudRate":  115200,
+                                    "AfterOpenDelay":  0,
+                                    "GenericProtocolDefinition":  {
+                                                                      "SettingsBuilder":  {
+                                                                                              "Settings":  [
+                                                                                                               {
+                                                                                                                   "Maximum":  30,
+                                                                                                                   "Minimum":  0,
+                                                                                                                   "PropertyName":  "pid_kp",
+                                                                                                                   "CurrentValue":  8,
+                                                                                                                   "Name":  null,
+                                                                                                                   "TypeName":  "SliderEntry",
+                                                                                                                   "Label":  "Kp - Proportional gain (response strength)",
+                                                                                                                   "Id":  "1611dd26-c478-4ecf-8fae-b5e4166a81f2"
+                                                                                                               },
+                                                                                                               {
+                                                                                                                   "Maximum":  10,
+                                                                                                                   "Minimum":  0,
+                                                                                                                   "PropertyName":  "pid_ki",
+                                                                                                                   "CurrentValue":  0.4,
+                                                                                                                   "Name":  null,
+                                                                                                                   "TypeName":  "SliderEntry",
+                                                                                                                   "Label":  "Ki - Integral gain (steady-state correction)",
+                                                                                                                   "Id":  "e263fd79-a803-4786-a473-8e969e7b3548"
+                                                                                                               },
+                                                                                                               {
+                                                                                                                   "Maximum":  5,
+                                                                                                                   "Minimum":  0,
+                                                                                                                   "PropertyName":  "pid_kd",
+                                                                                                                   "CurrentValue":  0.02,
+                                                                                                                   "Name":  null,
+                                                                                                                   "TypeName":  "SliderEntry",
+                                                                                                                   "Label":  "Kd - Derivative gain (damping/overshoot control)",
+                                                                                                                   "Id":  "46e81266-97d8-4ea4-8615-b21945af1f2b"
+                                                                                                               },
+                                                                                                               {
+                                                                                                                   "Maximum":  100,
+                                                                                                                   "Minimum":  0,
+                                                                                                                   "PropertyName":  "pid_ks",
+                                                                                                                   "CurrentValue":  70,
+                                                                                                                   "Name":  null,
+                                                                                                                   "TypeName":  "SliderEntry",
+                                                                                                                   "Label":  "Ks - Derivative smoothing ratio (%)",
+                                                                                                                   "Id":  "39df4aa0-f9ad-4994-bae4-2fce8b127039"
+                                                                                                               },
+                                                                                                               {
+                                                                                                                   "Settings":  [
+                                                                                                                                    {
+                                                                                                                                        "PropertyName":  "pid_enable",
+                                                                                                                                        "CurrentValue":  true,
+                                                                                                                                        "Name":  null,
+                                                                                                                                        "TypeName":  "BoolEntry",
+                                                                                                                                        "Label":  "Enable STM32 PID mode",
+                                                                                                                                        "Id":  "c0a818c4-c579-4576-997d-3e2b5f0887a0"
+                                                                                                                                    },
+                                                                                                                                    {
+                                                                                                                                        "Maximum":  100,
+                                                                                                                                        "Minimum":  0,
+                                                                                                                                        "PropertyName":  "pid_blend",
+                                                                                                                                        "CurrentValue":  100,
+                                                                                                                                        "Name":  null,
+                                                                                                                                        "TypeName":  "SliderEntry",
+                                                                                                                                        "Label":  "PID blend (%)",
+                                                                                                                                        "Id":  "4b292a99-f6c0-4bfc-80e1-2828af748d86"
+                                                                                                                                    }
+                                                                                                                                ],
+                                                                                                                   "Name":  null,
+                                                                                                                   "TypeName":  "GroupEntry",
+                                                                                                                   "Label":  "PID Mode Controls",
+                                                                                                                   "Id":  "31266265-e4a8-44c7-a44d-646b9560fcdc"
+                                                                                                               }
+                                                                                                           ],
+                                                                                              "IsEditMode":  false
+                                                                                          },
+                                                                      "ShowWaitForResponse":  true,
+                                                                      "AxisResolution":  16,
+                                                                      "AxisFormat":  1,
+                                                                      "StartCommands":  [
+                                                                                            {
+                                                                                                "MustWaitForMessage":  false,
+                                                                                                "WaitForMessage":  null,
+                                                                                                "WaitForDelay":  5000,
+                                                                                                "Command":  "\u003c0x00\u003e\u003c0x14\u003e\u003c0x0A\u003e\u003c0x00\u003e\u003c0xE0\u003e\u003c0x2E\u003e\u003c0x00\u003e\u003c0x00\u003e\u003c0xE0\u003e\u003c0x2E\u003e\u003c0x00\u003e\u003c0x00\u003e\u003c0xE0\u003e\u003c0x2E\u003e\u003c0x00\u003e\u003c0x00\u003e\u003c0xE0\u003e\u003c0x2E\u003e\u003c0x00\u003e\u003c0x00\u003e",
+                                                                                                "CommandDelay":  100
+                                                                                            },
+                                                                                            {
+                                                                                                "MustWaitForMessage":  false,
+                                                                                                "WaitForMessage":  null,
+                                                                                                "WaitForDelay":  5000,
+                                                                                                "Command":  "\u003c0x00\u003e\u003c0x14\u003e\u003c0x09\u003e\u003c0x00\u003e\u003c0x0A\u003e\u003c0x00\u003e\u003c0x00\u003e\u003c0x00\u003e\u003c0x0A\u003e\u003c0x00\u003e\u003c0x00\u003e\u003c0x00\u003e\u003c0x0A\u003e\u003c0x00\u003e\u003c0x00\u003e\u003c0x00\u003e\u003c0x0A\u003e\u003c0x00\u003e\u003c0x00\u003e\u003c0x00\u003e",
+                                                                                                "CommandDelay":  100
+                                                                                            },
+                                                                                            {
+                                                                                                "MustWaitForMessage":  false,
+                                                                                                "WaitForMessage":  null,
+                                                                                                "WaitForDelay":  5000,
+                                                                                                "Command":  "\u003c0x00\u003e\u003c0x14\u003e\u003c0x02\u003e\u003c0x00\u003e\u003c0x4B\u003e\u003c0x00\u003e\u003c0x00\u003e\u003c0x00\u003e\u003c0x4B\u003e\u003c0x00\u003e\u003c0x00\u003e\u003c0x00\u003e\u003c0x4B\u003e\u003c0x00\u003e\u003c0x00\u003e\u003c0x00\u003e\u003c0x4B\u003e\u003c0x00\u003e\u003c0x00\u003e\u003c0x00\u003e",
+                                                                                                "CommandDelay":  100
+                                                                                            },
+                                                                                            {
+                                                                                                "MustWaitForMessage":  false,
+                                                                                                "WaitForMessage":  null,
+                                                                                                "WaitForDelay":  5000,
+                                                                                                "Command":  "\u003c0x00\u003e\u003c0x14\u003e\u003c0x00\u003e\u003c0x00\u003e\u003c0x01\u003e\u003c0x00\u003e\u003c0x00\u003e\u003c0x00\u003e\u003c0x01\u003e\u003c0x00\u003e\u003c0x00\u003e\u003c0x00\u003e\u003c0x01\u003e\u003c0x00\u003e\u003c0x00\u003e\u003c0x00\u003e\u003c0x01\u003e\u003c0x00\u003e\u003c0x00\u003e\u003c0x00\u003e",
+                                                                                                "CommandDelay":  3000
+                                                                                            },
+                                                                                            {
+                                                                                                "MustWaitForMessage":  false,
+                                                                                                "WaitForMessage":  null,
+                                                                                                "WaitForDelay":  5000,
+                                                                                                "Command":  "\u003c0x00\u003e\u003c0x14\u003e\u003c0x05\u003e\u003c0x00\u003e\u003c0x01\u003e\u003c0x00\u003e\u003c0x00\u003e\u003c0x00\u003e\u003c0x01\u003e\u003c0x00\u003e\u003c0x00\u003e\u003c0x00\u003e\u003c0x01\u003e\u003c0x00\u003e\u003c0x00\u003e\u003c0x00\u003e\u003c0x01\u003e\u003c0x00\u003e\u003c0x00\u003e\u003c0x00\u003e",
+                                                                                                "CommandDelay":  100
+                                                                                            },
+                                                                                            {
+                                                                                                "MustWaitForMessage":  false,
+                                                                                                "WaitForMessage":  null,
+                                                                                                "WaitForDelay":  5000,
+                                                                                                "Command":  "PIDEN=\u003cSetting,pid_enable,0\u003e\u003c13\u003e\u003c10\u003e",
+                                                                                                "CommandDelay":  50
+                                                                                            },
+                                                                                            {
+                                                                                                "MustWaitForMessage":  false,
+                                                                                                "WaitForMessage":  null,
+                                                                                                "WaitForDelay":  5000,
+                                                                                                "Command":  "PIDBLEND=\u003cSetting,pid_blend,0\u003e\u003c13\u003e\u003c10\u003e",
+                                                                                                "CommandDelay":  50
+                                                                                            },
+                                                                                            {
+                                                                                                "MustWaitForMessage":  false,
+                                                                                                "WaitForMessage":  null,
+                                                                                                "WaitForDelay":  5000,
+                                                                                                "Command":  "KP=\u003cSetting,pid_kp,0.00\u003e\u003c13\u003e\u003c10\u003e",
+                                                                                                "CommandDelay":  50
+                                                                                            },
+                                                                                            {
+                                                                                                "MustWaitForMessage":  false,
+                                                                                                "WaitForMessage":  null,
+                                                                                                "WaitForDelay":  5000,
+                                                                                                "Command":  "KI=\u003cSetting,pid_ki,0.00\u003e\u003c13\u003e\u003c10\u003e",
+                                                                                                "CommandDelay":  50
+                                                                                            },
+                                                                                            {
+                                                                                                "MustWaitForMessage":  false,
+                                                                                                "WaitForMessage":  null,
+                                                                                                "WaitForDelay":  5000,
+                                                                                                "Command":  "KD=\u003cSetting,pid_kd,0.00\u003e\u003c13\u003e\u003c10\u003e",
+                                                                                                "CommandDelay":  50
+                                                                                            },
+                                                                                            {
+                                                                                                "MustWaitForMessage":  false,
+                                                                                                "WaitForMessage":  null,
+                                                                                                "WaitForDelay":  5000,
+                                                                                                "Command":  "KS=\u003cSetting,pid_ks,0\u003e\u003c13\u003e\u003c10\u003e",
+                                                                                                "CommandDelay":  50
+                                                                                            }
+                                                                                        ],
+                                                                      "UpdateCommands":  [
+                                                                                             {
+                                                                                                 "Command":  "\u003c0x00\u003e\u003c0x14\u003e\u003c0x0B\u003e\u003c0x00\u003e\u003cAxis1\u003e\u003cAxis2\u003e\u003cAxis3\u003e\u003cAxis4\u003e\u003c0x00\u003e\u003c0x00\u003e\u003c0x00\u003e\u003c0x00\u003e\u003c0x00\u003e\u003c0x00\u003e\u003c0x00\u003e\u003c0x00\u003e",
+                                                                                                 "CommandDelay":  5
+                                                                                             },
+                                                                                             {
+                                                                                                 "Command":  "PIDCFG=\u003cSetting,pid_enable,0\u003e,\u003cSetting,pid_blend,0\u003e\u003c13\u003e\u003c10\u003e",
+                                                                                                 "CommandDelay":  0
+                                                                                             }
+                                                                                         ],
+                                                                      "StopCommands":  [
+                                                                                           {
+                                                                                               "MustWaitForMessage":  false,
+                                                                                               "WaitForMessage":  null,
+                                                                                               "WaitForDelay":  5000,
+                                                                                               "Command":  "\u003c0x00\u003e\u003c0x14\u003e\u003c0x07\u003e\u003c0x00\u003e\u003c0x01\u003e\u003c0x00\u003e\u003c0x00\u003e\u003c0x00\u003e\u003c0x01\u003e\u003c0x00\u003e\u003c0x00\u003e\u003c0x00\u003e\u003c0x01\u003e\u003c0x00\u003e\u003c0x00\u003e\u003c0x00\u003e\u003c0x01\u003e\u003c0x00\u003e\u003c0x00\u003e\u003c0x00\u003e",
+                                                                                               "CommandDelay":  100
+                                                                                           }
+                                                                                       ]
+                                                                  },
+                                    "SecurityAcknowledgementAccepted":  true,
+                                    "ActuatorOrderingSettings":  {
+                                                                     "MaxActuatorsEx":  4,
+                                                                     "ConfigurationDone":  true,
+                                                                     "UseParkPosition":  false,
+                                                                     "ParkDuration":  5516,
+                                                                     "UseParkPositionEx":  false,
+                                                                     "Roles":  [
+                                                                                   {
+                                                                                       "RangeLimit":  100,
+                                                                                       "ParkPosition":  50,
+                                                                                       "Role":  1,
+                                                                                       "ReverseDirection":  false
+                                                                                   },
+                                                                                   {
+                                                                                       "RangeLimit":  100,
+                                                                                       "ParkPosition":  50,
+                                                                                       "Role":  3,
+                                                                                       "ReverseDirection":  false
+                                                                                   },
+                                                                                   {
+                                                                                       "RangeLimit":  100,
+                                                                                       "ParkPosition":  50,
+                                                                                       "Role":  4,
+                                                                                       "ReverseDirection":  false
+                                                                                   },
+                                                                                   {
+                                                                                       "RangeLimit":  100,
+                                                                                       "ParkPosition":  50,
+                                                                                       "Role":  2,
+                                                                                       "ReverseDirection":  false
+                                                                                   }
+                                                                               ]
+                                                                 },
+                                    "OutputId":  "d55bc933-4451-49f5-8111-4b56e12f285b",
+                                    "AllowIdling":  true
+                                },
+                   "OutputId":  "9ccfc266-9843-4b74-a38c-cb3b298943cd",
+                   "TypeName":  "GenericSerialOutputV2"
+               }
+}
