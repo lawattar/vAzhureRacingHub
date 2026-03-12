@@ -254,6 +254,12 @@ uint8_t txtoffset = 0;
 bool textCmdPending = false;
 COMMAND textPendingCmd = COMMAND::CMD_SET_PID_KP;
 uint32_t textPendingData = 0;
+bool syncTrajectoryEnabled = false;
+const uint16_t syncTrajectoryPeriodMs = 10;
+int32_t syncTargets[MAX_LINEAR_ACTUATORS] = { 0 };
+bool syncTargetsPending = false;
+uint32_t syncLastDispatchMs = 0;
+bool TransmitCMD(uint8_t addr, uint8_t cmd, uint32_t data);
 
 bool EqualsIgnoreCase(const char* a, const char* b) {
   while (*a && *b) {
@@ -272,13 +278,35 @@ void QueuePidTextCommand(COMMAND cmd, uint32_t data) {
   textCmdPending = true;
 }
 
+void QueueSynchronizedTargets(const int32_t* targets) {
+  memcpy(syncTargets, targets, sizeof(syncTargets));
+  syncTargetsPending = true;
+}
+
+void DispatchSynchronizedTargetsIfDue(bool force) {
+  if (!syncTrajectoryEnabled || !syncTargetsPending || estopLatched) {
+    return;
+  }
+  uint32_t now = millis();
+  if (!force && syncLastDispatchMs != 0 && (now - syncLastDispatchMs) < syncTrajectoryPeriodMs) {
+    return;
+  }
+
+  for (int t = 0; t < LINEAR_ACTUATORS; t++) {
+    TransmitCMD(SLAVE_FIRST + t, COMMAND::CMD_MOVE, syncTargets[t]);
+  }
+  syncTargetsPending = false;
+  syncLastDispatchMs = now;
+}
+
 void ParseTextCommandLine() {
   static int32_t lastKp10 = -1;
   static int32_t lastKi10 = -1;
-  static int32_t lastKd10 = -1;
+  static int32_t lastKd100 = -1;
   static int32_t lastKs100 = -1;
   static int32_t lastPidEnable = -1;
   static int32_t lastPidBlend = -1;
+  static int32_t lastSyncExec = -1;
 
   txtbuf[txtoffset] = '\0';
   char* eq = strchr(txtbuf, '=');
@@ -287,7 +315,8 @@ void ParseTextCommandLine() {
   }
   *eq = '\0';
   const char* key = txtbuf;
-  float value = (float)atof(eq + 1);
+  const char* rawValue = eq + 1;
+  float value = (float)atof(rawValue);
 
   if (EqualsIgnoreCase(key, "KP")) {
     value = clamp(value, 0.0f, 200.0f);
@@ -304,10 +333,18 @@ void ParseTextCommandLine() {
       QueuePidTextCommand(COMMAND::CMD_SET_PID_KI, (uint32_t)v);
     }
   } else if (EqualsIgnoreCase(key, "KD")) {
-    value = clamp(value, 0.0f, 50.0f);
-    int32_t v = (int32_t)(value * 10.0f + 0.5f);
-    if (v != lastKd10) {
-      lastKd10 = v;
+    // KD accepts scaled integer (0..100 means 0.00..1.00) for SimHub sliders.
+    // If decimal text is provided, interpret it as direct KD and scale by 100.
+    int32_t v = 0;
+    if (strchr(rawValue, '.') != nullptr) {
+      value = clamp(value, 0.0f, 50.0f);
+      v = (int32_t)(value * 100.0f + 0.5f);
+    } else {
+      int32_t scaled = atoi(rawValue);
+      v = (int32_t)clamp(scaled, 0, 100);
+    }
+    if (v != lastKd100) {
+      lastKd100 = v;
       QueuePidTextCommand(COMMAND::CMD_SET_PID_KD, (uint32_t)v);
     }
   } else if (EqualsIgnoreCase(key, "KS")) {
@@ -355,6 +392,20 @@ void ParseTextCommandLine() {
     if (blend != lastPidBlend) {
       lastPidBlend = blend;
       QueuePidTextCommand(COMMAND::CMD_SET_PID_BLEND, (uint32_t)blend);
+    }
+  } else if (EqualsIgnoreCase(key, "SYNCEXEC")) {
+    bool enabled = false;
+    if (EqualsIgnoreCase(eq + 1, "TRUE") || EqualsIgnoreCase(eq + 1, "ON")) {
+      enabled = true;
+    } else {
+      enabled = (value >= 0.5f);
+    }
+    int32_t v = enabled ? 1 : 0;
+    if (v != lastSyncExec) {
+      lastSyncExec = v;
+      syncTrajectoryEnabled = enabled;
+      syncTargetsPending = false;
+      syncLastDispatchMs = 0;
     }
   }
 }
@@ -415,9 +466,11 @@ void loop() {
   bool estopActive = (digitalRead(ALARM_PIN) == HIGH);
   if (estopActive) {
     estopLatched = true;
+    syncTargetsPending = false;
   }
 
   if (bAlarm || (estopActive && (millis() - lastAlarmBroadcastMs) > 100)) {
+    syncTargetsPending = false;
     for (int addr = SLAVE_FIRST; addr <= SLAVE_LAST; addr++)
       TransmitCMD(addr, COMMAND::SET_ALARM, 1);
     bAlarm = false;
@@ -426,6 +479,10 @@ void loop() {
 
   if (Serial.available())
     serialEvent();
+
+  if (syncTrajectoryEnabled) {
+    DispatchSynchronizedTargetsIfDue(false);
+  }
 
   if (textCmdPending) {
     if (!estopLatched) {
@@ -471,17 +528,22 @@ void loop() {
           if (estopLatched) {
             break;
           }
-          //memcpy(&pccmd_sh, &pccmd, RAW_DATA_LEN);
+          int32_t mappedTargets[LINEAR_ACTUATORS];
           for (int t = 0; t < LINEAR_ACTUATORS; t++) {
             uint16_t val = pccmd_sh.data[t];
             val = (val >> 8) | (val << 8);
-            uint32_t target = map(val, 0, 65535, st[t].min, st[t].max);
-            TransmitCMD(SLAVE_FIRST + t, COMMAND::CMD_MOVE, target);
+            mappedTargets[t] = map(val, 0, 65535, st[t].min, st[t].max);
+          }
+          if (syncTrajectoryEnabled) {
+            QueueSynchronizedTargets(mappedTargets);
+          } else {
+            for (int t = 0; t < LINEAR_ACTUATORS; t++) {
+              TransmitCMD(SLAVE_FIRST + t, COMMAND::CMD_MOVE, (uint32_t)mappedTargets[t]);
+            }
           }
         }
         break;
       case COMMAND::CMD_PARK:
-      case COMMAND::CMD_MOVE:
       case COMMAND::CMD_SET_SPEED:
       case COMMAND::CMD_SET_SLOW_SPEED:
       case COMMAND::CMD_SET_ACCEL:
@@ -491,6 +553,20 @@ void loop() {
           }
           for (int t = 0; t < LINEAR_ACTUATORS; t++)
             TransmitCMD(SLAVE_FIRST + t, pccmd.cmd, pccmd.data[t]);
+        }
+        break;
+      case COMMAND::CMD_MOVE:
+        {
+          if (estopLatched) {
+            break;
+          }
+          if (syncTrajectoryEnabled) {
+            QueueSynchronizedTargets(pccmd.data);
+          } else {
+            for (int t = 0; t < LINEAR_ACTUATORS; t++) {
+              TransmitCMD(SLAVE_FIRST + t, COMMAND::CMD_MOVE, pccmd.data[t]);
+            }
+          }
         }
         break;
       case COMMAND::CMD_SET_PID_KP:
@@ -546,7 +622,7 @@ const uint8_t limiterPinNC = PA7;
 
 #define ANALOG_INPUT_MAX 4095
 
-volatile uint32_t accel = 25000;                               // Acceleration in mm/s² (25000 = 2.5g, 12000 would be gentler for 60Hz buffering --> adjust via desktop app)
+volatile uint32_t accel = 25000;                               // Acceleration in mm/s^2 (25000 = 2.5g, 12000 would be gentler for 60Hz buffering --> adjust via desktop app)
 #define STEPS_CONTROL_DIST STEPS_PER_REVOLUTIONS / 4  // Distance in steps
 
 #ifdef SFU1610
@@ -614,7 +690,7 @@ volatile uint32_t accelStepCount = 0;       // Steps taken for acceleration trac
 // ========== PID CONTROL VARIABLES ==========
 struct PIDController {
   float Kp = 8.0f;
-  float Ki = 0.4f;
+  float Ki = 0.0f;
   float Kd = 0.015f;
   float Ks = 0.70f;  // Derivative smoothing ratio (0..1)
 
@@ -630,7 +706,7 @@ struct PIDController {
 } pid;
 
 volatile int32_t maxAccelSteps = (int32_t)(25000.0f * STEPS_PER_REVOLUTIONS / MM_PER_REV);
-volatile bool pidControlEnabled = true;
+volatile bool pidControlEnabled = false;
 float pidBlend = 1.0f;  // 0..1 scales PID output intensity
 float limitedFrequencyHz = 0.0f;
 uint32_t frequencyLimiterLastMs = 0;
@@ -943,7 +1019,7 @@ void receiveEvent(int size) {
         resetPID();
         break;
       case COMMAND::CMD_SET_PID_KD:
-        pid.Kd = clamp((float)data / 10.0f, PID_KD_MIN, PID_KD_MAX);
+        pid.Kd = clamp((float)data / 100.0f, PID_KD_MIN, PID_KD_MAX);
         resetPID();
         break;
       case COMMAND::CMD_SET_PID_KS:

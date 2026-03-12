@@ -29,20 +29,20 @@
                                                                                                                    "Maximum":  10,
                                                                                                                    "Minimum":  0,
                                                                                                                    "PropertyName":  "pid_ki",
-                                                                                                                   "CurrentValue":  0.4,
+                                                                                                                   "CurrentValue":  0,
                                                                                                                    "Name":  null,
                                                                                                                    "TypeName":  "SliderEntry",
                                                                                                                    "Label":  "Ki - Integral gain (steady-state correction)",
                                                                                                                    "Id":  "e263fd79-a803-4786-a473-8e969e7b3548"
                                                                                                                },
                                                                                                                {
-                                                                                                                   "Maximum":  5,
+                                                                                                                   "Maximum":  100,
                                                                                                                    "Minimum":  0,
                                                                                                                    "PropertyName":  "pid_kd",
-                                                                                                                   "CurrentValue":  0.02,
+                                                                                                                   "CurrentValue":  2,
                                                                                                                    "Name":  null,
                                                                                                                    "TypeName":  "SliderEntry",
-                                                                                                                   "Label":  "Kd - Derivative gain (damping/overshoot control)",
+                                                                                                                   "Label":  "Kd - Derivative gain (scaled x100, 2 = 0.02)",
                                                                                                                    "Id":  "46e81266-97d8-4ea4-8615-b21945af1f2b"
                                                                                                                },
                                                                                                                {
@@ -59,11 +59,19 @@
                                                                                                                    "Settings":  [
                                                                                                                                     {
                                                                                                                                         "PropertyName":  "pid_enable",
-                                                                                                                                        "CurrentValue":  true,
+                                                                                                                                        "CurrentValue":  false,
                                                                                                                                         "Name":  null,
                                                                                                                                         "TypeName":  "BoolEntry",
                                                                                                                                         "Label":  "Enable STM32 PID mode",
                                                                                                                                         "Id":  "c0a818c4-c579-4576-997d-3e2b5f0887a0"
+                                                                                                                                    },
+                                                                                                                                    {
+                                                                                                                                        "PropertyName":  "experimental_sync_exec",
+                                                                                                                                        "CurrentValue":  false,
+                                                                                                                                        "Name":  null,
+                                                                                                                                        "TypeName":  "BoolEntry",
+                                                                                                                                        "Label":  "Experimental: synchronized trajectory execution",
+                                                                                                                                        "Id":  "18c2f2af-302f-4e1d-ad0d-1c6f52dd4541"
                                                                                                                                     },
                                                                                                                                     {
                                                                                                                                         "Maximum":  100,
@@ -141,6 +149,13 @@
                                                                                                 "MustWaitForMessage":  false,
                                                                                                 "WaitForMessage":  null,
                                                                                                 "WaitForDelay":  5000,
+                                                                                                "Command":  "SYNCEXEC=\u003cSetting,experimental_sync_exec,0\u003e\u003c13\u003e\u003c10\u003e",
+                                                                                                "CommandDelay":  50
+                                                                                            },
+                                                                                            {
+                                                                                                "MustWaitForMessage":  false,
+                                                                                                "WaitForMessage":  null,
+                                                                                                "WaitForDelay":  5000,
                                                                                                 "Command":  "KP=\u003cSetting,pid_kp,0.00\u003e\u003c13\u003e\u003c10\u003e",
                                                                                                 "CommandDelay":  50
                                                                                             },
@@ -155,7 +170,7 @@
                                                                                                 "MustWaitForMessage":  false,
                                                                                                 "WaitForMessage":  null,
                                                                                                 "WaitForDelay":  5000,
-                                                                                                "Command":  "KD=\u003cSetting,pid_kd,0.00\u003e\u003c13\u003e\u003c10\u003e",
+                                                                                                "Command":  "KD=\u003cSetting,pid_kd,0\u003e\u003c13\u003e\u003c10\u003e",
                                                                                                 "CommandDelay":  50
                                                                                             },
                                                                                             {
@@ -173,6 +188,10 @@
                                                                                              },
                                                                                              {
                                                                                                  "Command":  "PIDCFG=\u003cSetting,pid_enable,0\u003e,\u003cSetting,pid_blend,0\u003e\u003c13\u003e\u003c10\u003e",
+                                                                                                 "CommandDelay":  0
+                                                                                             },
+                                                                                             {
+                                                                                                 "Command":  "SYNCEXEC=\u003cSetting,experimental_sync_exec,0\u003e\u003c13\u003e\u003c10\u003e",
                                                                                                  "CommandDelay":  0
                                                                                              }
                                                                                          ],
