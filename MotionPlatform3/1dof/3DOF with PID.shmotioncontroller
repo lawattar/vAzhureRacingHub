@@ -68,7 +68,7 @@
                                                                                                                                         "CurrentValue":  0,
                                                                                                                                         "Name":  null,
                                                                                                                                         "TypeName":  "SliderEntry",
-                                                                                                                                        "Label":  "Ki - Integral gain (steady-state correction)\nWARNING: Keep at 0. Servo controller likely has internal integral. Non-zero value may cause desync between actuators. Change only if you understand cascade control and accept desync risk.",
+                                                                                                                                        "Label":  "Ki - Integral gain (steady-state correction)\nWARNING: Keep at 0. Servo controller likely has internal integral.\nNon-zero value may cause desync between actuators.\nChange only if you understand cascade control and accept desync risk.",
                                                                                                                                         "Id":  "e263fd79-a803-4786-a473-8e969e7b3548"
                                                                                                                                     },
                                                                                                                                     {
