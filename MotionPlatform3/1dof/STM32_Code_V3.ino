@@ -446,15 +446,26 @@ void ParseTextCommandLine() {
       QueuePidTextCommand(COMMAND::CMD_SET_PID_BLEND, (uint32_t)v);
     }
   } else if (EqualsIgnoreCase(key, "PIDCFG")) {
+    // Accept both numeric and bool text for PID enable:
+    // PIDCFG=1,35 or PIDCFG=TRUE,35
     char* comma = strchr(eq + 1, ',');
     if (!comma) {
       return;
     }
     *comma = '\0';
-    int en = atoi(eq + 1);
-    int blend = atoi(comma + 1);
-    en = en != 0 ? 1 : 0;
-    blend = (int)clamp(blend, 0, 100);
+    const char* enToken = eq + 1;
+    const char* blendToken = comma + 1;
+
+    int en = 0;
+    if (EqualsIgnoreCase(enToken, "TRUE") || EqualsIgnoreCase(enToken, "ON")) {
+      en = 1;
+    } else if (EqualsIgnoreCase(enToken, "FALSE") || EqualsIgnoreCase(enToken, "OFF")) {
+      en = 0;
+    } else {
+      en = (atof(enToken) >= 0.5f) ? 1 : 0;
+    }
+
+    int blend = clamp<int>((int)atoi(blendToken), 0, 100);
 
     if (en != lastPidEnable) {
       lastPidEnable = en;
