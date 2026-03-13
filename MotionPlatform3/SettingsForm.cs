@@ -495,7 +495,7 @@ namespace MotionPlatform3
                         new SimHub.ProtocolSetting()
                         {
                             TypeName = "SliderEntry",
-                            Label = "PID blend (%)\nScales STM32 PID output strength (0 = off, 100 = full).",
+                            Label = "Global PID Gain (%)\nScales STM32 PID output strength (0 = minimal, 100 = maximum).",
                             PropertyName = "pid_blend",
                             CurrentValue = 35,
                             Minimum = 0,

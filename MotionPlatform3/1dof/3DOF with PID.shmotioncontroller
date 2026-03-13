@@ -40,7 +40,7 @@
                                                                                                                                         "CurrentValue":  35,
                                                                                                                                         "Name":  null,
                                                                                                                                         "TypeName":  "SliderEntry",
-                                                                                                                                        "Label":  "PID blend (%)\nScales STM32 PID output strength (0 = off, 100 = full).",
+                                                                                                                                        "Label":  "Global PID Gain (%)\nScales STM32 PID output strength (0 = minimal, 100 = maximum).",
                                                                                                                                         "Id":  "4b292a99-f6c0-4bfc-80e1-2828af748d86"
                                                                                                                                     }
                                                                                                                                 ],
