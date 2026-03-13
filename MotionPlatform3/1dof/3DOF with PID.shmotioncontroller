@@ -22,7 +22,7 @@
                                                                                                                                         "CurrentValue":  false,
                                                                                                                                         "Name":  null,
                                                                                                                                         "TypeName":  "BoolEntry",
-                                                                                                                                        "Label":  "Enable STM32 PID mode",
+                                                                                                                                        "Label":  "Enable STM32 PID mode (Warning: has significant effect on motion feel.)",
                                                                                                                                         "Id":  "c0a818c4-c579-4576-997d-3e2b5f0887a0"
                                                                                                                                     },
                                                                                                                                     {
@@ -30,7 +30,7 @@
                                                                                                                                         "CurrentValue":  false,
                                                                                                                                         "Name":  null,
                                                                                                                                         "TypeName":  "BoolEntry",
-                                                                                                                                        "Label":  "Synchronized trajectory execution",
+                                                                                                                                        "Label":  "Synchronized trajectory execution (align target updates to avoid desync)",
                                                                                                                                         "Id":  "18c2f2af-302f-4e1d-ad0d-1c6f52dd4541"
                                                                                                                                     },
                                                                                                                                     {
@@ -55,7 +55,7 @@
                                                                                                                                         "Maximum":  30,
                                                                                                                                         "Minimum":  0,
                                                                                                                                         "PropertyName":  "pid_kp",
-                                                                                                                                        "CurrentValue":  8,
+                                                                                                                                        "CurrentValue":  15,
                                                                                                                                         "Name":  null,
                                                                                                                                         "TypeName":  "SliderEntry",
                                                                                                                                         "Label":  "Kp - Proportional gain (response strength)\nHigher = faster, more aggressive response.",
@@ -85,7 +85,7 @@
                                                                                                                                         "Maximum":  100,
                                                                                                                                         "Minimum":  0,
                                                                                                                                         "PropertyName":  "pid_ks",
-                                                                                                                                        "CurrentValue":  70,
+                                                                                                                                        "CurrentValue":  50,
                                                                                                                                         "Name":  null,
                                                                                                                                         "TypeName":  "SliderEntry",
                                                                                                                                         "Label":  "Ks - Derivative smoothing ratio (%)\nHigher = smoother derivative filtering (less noise, more lag).",

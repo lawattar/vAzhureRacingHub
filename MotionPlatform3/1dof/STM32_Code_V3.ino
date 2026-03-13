@@ -271,13 +271,13 @@ int32_t syncTargets[MAX_LINEAR_ACTUATORS] = { 0 };
 bool syncTargetsPending = false;
 uint32_t syncLastDispatchMs = 0;
 // Diagnostics: set false after validation if SimHub parsing is affected.
-bool pidDiagEnabled = true;
+bool pidDiagEnabled = false;
 const uint32_t PID_DIAG_INTERVAL_MS = 5000;
 uint32_t pidDiagLastMs = 0;
-float masterPidKp = 8.0f;
+float masterPidKp = 15.0f;
 float masterPidKi = 0.0f;
 float masterPidKd = 0.02f;
-float masterPidKs = 0.70f;
+float masterPidKs = 0.50f;
 bool masterPidEnable = false;
 float masterPidBlend = 0.35f;
 bool masterSyncExec = false;
@@ -783,10 +783,10 @@ volatile uint32_t accelStepCount = 0;       // Steps taken for acceleration trac
 
 // ========== PID CONTROL VARIABLES ==========
 struct PIDController {
-  float Kp = 8.0f;
+  float Kp = 15.0f;
   float Ki = 0.0f;
-  float Kd = 0.015f;
-  float Ks = 0.70f;  // Derivative smoothing ratio (0..1)
+  float Kd = 0.02f;
+  float Ks = 0.50f;  // Derivative smoothing ratio (0..1)
 
   float integralLimit = 400.0f;
   float maxFreq = 40000.0f;
