@@ -477,7 +477,7 @@ namespace MotionPlatform3
                         new SimHub.ProtocolSetting()
                         {
                             TypeName = "BoolEntry",
-                            Label = "Enable STM32 PID mode",
+                            Label = "Enable STM32 PID mode (Warning: has significant effect on motion feel.)",
                             PropertyName = "pid_enable",
                             CurrentValue = false,
                             Id = "c0a818c4-c579-4576-997d-3e2b5f0887a0",
@@ -486,7 +486,7 @@ namespace MotionPlatform3
                         new SimHub.ProtocolSetting()
                         {
                             TypeName = "BoolEntry",
-                            Label = "Synchronized trajectory execution",
+                            Label = "Synchronized trajectory execution (align target updates to avoid desync)",
                             PropertyName = "experimental_sync_exec",
                             CurrentValue = false,
                             Id = "18c2f2af-302f-4e1d-ad0d-1c6f52dd4541",
@@ -518,7 +518,7 @@ namespace MotionPlatform3
                             TypeName = "SliderEntry",
                             Label = "Kp - Proportional gain (response strength)\nHigher = faster, more aggressive response.",
                             PropertyName = "pid_kp",
-                            CurrentValue = 8,
+                            CurrentValue = 15,
                             Minimum = 0,
                             Maximum = 30,
                             Id = "1611dd26-c478-4ecf-8fae-b5e4166a81f2",
@@ -527,7 +527,7 @@ namespace MotionPlatform3
                         new SimHub.ProtocolSetting()
                         {
                             TypeName = "SliderEntry",
-                            Label = "Ki - Integral gain (steady-state correction)\nWARNING: Keep at 0.\nServo controller likely has internal integral.\nNon-zero value may cause desync between actuators.\nChange only if you understand cascade control.\nAccept desync risk.",
+                            Label = "Ki - Integral gain (steady-state correction)\nWARNING: Keep at 0. Servo controller likely has internal integral.\nNon-zero value may cause desync between actuators.\nChange only if you understand cascade control and accept desync risk.",
                             PropertyName = "pid_ki",
                             CurrentValue = 0,
                             Minimum = 0,
@@ -551,7 +551,7 @@ namespace MotionPlatform3
                             TypeName = "SliderEntry",
                             Label = "Ks - Derivative smoothing ratio (%)\nHigher = smoother derivative filtering (less noise, more lag).",
                             PropertyName = "pid_ks",
-                            CurrentValue = 70,
+                            CurrentValue = 50,
                             Minimum = 0,
                             Maximum = 100,
                             Id = "39df4aa0-f9ad-4994-bae4-2fce8b127039",
