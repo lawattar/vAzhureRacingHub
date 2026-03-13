@@ -1,9 +1,15 @@
 // 3DOF by Andrey Zhuravlev
-// Mofified for timer-based-stepping using ISR (increases speed/performance) by Laith Wattar
+// Timer-based-stepping and PID controls added by Laith Wattar
 
 // V3 Changes: 
 // - Motion Smoothing/Buffer removed  
-// - PID motion shaping added (not true PID)
+// - Toggleable PID motion shaping added:
+//   - STM32 PID is NOT true closed-loop; it uses estimated step-count position (no encoder connection)
+//   - Servo drives run their own PID loops internally with encoder feedback (true closed-loop)
+//   - STM32 shapes step/dir commands before servo; servo corrects any position errors
+//   - Ki MUST stay at 0 (servo speed loop already has integral - avoid double integration. Adjust it at your own risk.)
+//   - V3 Code requires usage of an updated shmotioncontroller file. This will unlock custom SimHub PID sliders in the Protocol Control Panel (click on output settings).
+//   - These sliders can change the PID parameters via I2C, but motion must first be disabled in SimHub. Once edited, re-enable motion and test.
 
 // e-mail: v.azhure@gmail.com
 // original version from 2025-06-21
@@ -12,7 +18,7 @@
 // stm32duino version
 
 //!!!!!!!!!!!!!!!!!!!!!!!!!!!! WARNING !!!!!!!!!!!!!!!!!!!!!!!!!!!!
-// NOTE: MAKE SURE TO EDIT LINES 633-652 IF YOU CHANGE THE BALLSCREW LENGTH! 
+// NOTE: MAKE SURE TO EDIT LINES 722-741 IF YOU CHANGE THE BALLSCREW LENGTH! 
 // Also please double check:
 // -LED_PIN
 // -MM_PER_REV - distance in mm per revolution
@@ -20,7 +26,7 @@
 // -STEPS_PER_REVOLUTIONS - Steps per revolution, decreased from 2000 to 1000 to accomadate slower STM32s (verify ratio on your specific servo controller)
 //!!!!!!!!!!!!!!!!!!!!!!!!!!!! WARNING !!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-// NOTE: select fake STM32F103C8 or Generik STM32F103C series, CPU Speed 74Mhz, upload method STLink, Optimize Fast (-O1)
+// NOTE: select fake STM32F103C8 or Generik STM32F103C series, CPU Speed 74Mhz, upload method STLink, Optimize Fastest (-O3)
 // https://www.stm32duino.com/
 
 //#define INVERTED_DIR
